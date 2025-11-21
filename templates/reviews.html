@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Book Reviews{% endblock %}
+
+{% block content %}
+<div id="reviews-section" style="max-width:600px; margin:auto;">
+
+    <h2>Add a Review</h2>
+    <select id="reviewBook" style="width:100%; padding:8px; border-radius:6px; margin-bottom:8px;">
+        <option value="">Select a Book</option>
+    </select>
+
+    <input type="text" id="reviewerName" placeholder="Your Name"
+        style="width:100%; padding:8px; border-radius:6px; margin-bottom:8px;">
+    <input type="number" id="rating" placeholder="Rating (1–5)"
+        style="width:100%; padding:8px; border-radius:6px; margin-bottom:8px;">
+    <textarea id="comment" placeholder="Write your review..."
+        style="width:100%; padding:8px; border-radius:6px; margin-bottom:8px;"></textarea>
+    <button onclick="addReview()" style="
+        background:#4CAF50; color:white; border:none; padding:10px 20px;
+        border-radius:8px; cursor:pointer;">💬 Submit Review</button>
+
+    <hr style="margin:30px 0;">
+
+    <h2>All Reviews</h2>
+    <div id="reviewList"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}
