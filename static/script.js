@@ -1,11 +1,6 @@
-// =============================
-// ✅ Global State
-// =============================
+
 const books = [];
 
-// =============================
-// ✅ Add a Book (Add Page)
-// =============================
 function addBook()
 {
     const bookTitle = document.getElementById('bookTitle')?.value;
@@ -47,9 +42,7 @@ function addBook()
 }
 
 
-// =============================
-// ✅ Display Newly Added Books
-// =============================
+
 function displayAddedBooks()
 {
     const bookList = document.getElementById('bookList');
@@ -76,9 +69,7 @@ function displayAddedBooks()
     });
 }
 
-// =============================
-// ✅ Delete a Book
-// =============================
+
 function deleteBook(bookId, bookTitle)
 {
     if (!confirm(`Are you sure you want to delete "${bookTitle}"?`)) return;
@@ -99,9 +90,7 @@ function deleteBook(bookId, bookTitle)
         .catch(error => console.error('Error deleting book:', error));
 }
 
-// =============================
-// ✅ Display All Books (Main Page)
-// =============================
+
 function showAllBooks()
 {
     fetch('/api/books')
@@ -110,9 +99,6 @@ function showAllBooks()
         .catch(error => console.error('Error fetching all books:', error));
 }
 
-// =============================
-// ✅ Search Books (DB-backed)
-// =============================
 function searchBooks()
 {
     const query = document.getElementById('searchInput')?.value || '';
@@ -122,9 +108,67 @@ function searchBooks()
         .catch(error => console.error('Error searching books:', error));
 }
 
-// =============================
-// ✅ Helper: Render Book Cards (with Average Rating)
-// =============================
+let currentEditingBookId = null;
+
+function editBookForm(book)
+{
+    currentEditingBookId = book._id;
+    document.getElementById('modalTitle').value = book.title;
+    document.getElementById('modalYear').value = book.publication_year;
+    document.getElementById('modalAuthor').value = book.author_name;
+    document.getElementById('modalImage').value = book.image_url || '';
+    document.getElementById('editBookModal').style.display = 'flex';
+}
+
+// Close modal
+document.getElementById('closeModal').addEventListener('click', () =>
+{
+    document.getElementById('editBookModal').style.display = 'none';
+});
+
+// Save changes
+document.getElementById('saveModalBtn').addEventListener('click', () =>
+{
+    if (!currentEditingBookId) return;
+
+    const updatedBook = {
+        title: document.getElementById('modalTitle').value,
+        publication_year: document.getElementById('modalYear').value,
+        author_name: document.getElementById('modalAuthor').value,
+        image_url: document.getElementById('modalImage').value
+    };
+
+    fetch(`/api/edit_book/${currentEditingBookId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedBook)
+    })
+        .then(res => res.json())
+        .then(data =>
+        {
+            if (data.message)
+            {
+                alert(`✅ ${data.message}`);
+                document.getElementById('editBookModal').style.display = 'none';
+                showAllBooks();
+            } else
+            {
+                alert(`❌ Error: ${data.error}`);
+            }
+        })
+        .catch(err => console.error('Error editing book:', err));
+});
+
+// Close modal on click outside content
+window.addEventListener('click', e =>
+{
+    if (e.target === document.getElementById('editBookModal'))
+    {
+        e.target.style.display = 'none';
+    }
+});
+
+
 function renderBookCards(bookArray)
 {
     const bookList = document.getElementById('allbooks');
@@ -166,13 +210,22 @@ function renderBookCards(bookArray)
             </div>
         `;
         bookList.appendChild(bookElement);
+
+        // Add Edit button with proper click handler
+        const editBtn = document.createElement('button');
+        editBtn.style = `
+            background:#3498db;color:white;border:none;
+            padding:8px 12px;border-radius:6px;cursor:pointer;
+            margin-top:10px; margin-left:5px;
+        `;
+        editBtn.textContent = '✏️ Edit';
+        editBtn.addEventListener('click', () => editBookForm(book));
+
+        bookElement.querySelector('.book-info').appendChild(editBtn);
     });
 }
 
 
-// =============================
-// ✅ Auto-load Books if on Main Page
-// =============================
 document.addEventListener('DOMContentLoaded', () =>
 {
     if (document.getElementById('allbooks'))
@@ -181,9 +234,7 @@ document.addEventListener('DOMContentLoaded', () =>
     }
 });
 
-// =============================
-// ✅ Load Books into Review Dropdown
-// =============================
+
 function loadBooksForReview()
 {
     fetch('/api/books')
@@ -203,9 +254,7 @@ function loadBooksForReview()
         .catch(error => console.error('Error loading books:', error));
 }
 
-// =============================
-// ✅ Add a Review
-// =============================
+
 function addReview()
 {
     const bookId = document.getElementById('reviewBook')?.value;
@@ -246,9 +295,6 @@ function addReview()
         .catch(error => console.error('Error adding review:', error));
 }
 
-// =============================
-// ✅ Display All Reviews
-// =============================
 function loadAllReviews()
 {
     fetch('/api/reviews')
@@ -285,9 +331,37 @@ function renderReviewCards(reviewArray)
     });
 }
 
-// =============================
-// ✅ Auto-load when on Reviews Page
-// =============================
+function submitEditBook(bookId)
+{
+    const updatedBook = {
+        title: document.getElementById('editTitle')?.value,
+        publication_year: document.getElementById('editYear')?.value,
+        author_name: document.getElementById('editAuthor')?.value,
+        image_url: document.getElementById('editImage')?.value
+    };
+
+    fetch(`/api/edit_book/${bookId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedBook)
+    })
+        .then(response => response.json())
+        .then(data =>
+        {
+            if (data.message)
+            {
+                alert(`✅ ${data.message}`);
+                showAllBooks();
+            } else
+            {
+                alert(`❌ Error: ${data.error}`);
+            }
+        })
+        .catch(error => console.error('Error editing book:', error));
+}
+
+
+
 document.addEventListener('DOMContentLoaded', () =>
 {
     if (document.getElementById('reviews-section'))

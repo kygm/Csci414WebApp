@@ -23,6 +23,21 @@
     </header>
 
     {% block content %}{% endblock %}
+
+    <!-- Edit Book Modal -->
+    <div id="editBookModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <h2>Edit Book</h2>
+            <input type="text" id="modalTitle" placeholder="Book Title">
+            <input type="text" id="modalYear" placeholder="Publication Year">
+            <input type="text" id="modalAuthor" placeholder="Author Name">
+            <input type="text" id="modalImage" placeholder="Image URL">
+            <button id="saveModalBtn">💾 Save Changes</button>
+        </div>
+    </div>
+
+
     {% block scripts %}{% endblock %}
 </body>
 

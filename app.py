@@ -180,6 +180,36 @@ def add_review():
     except Exception as e:
         log_error("add_review", e)
         return jsonify({'error': str(e)})
+    
+@app.route('/api/edit_book/<book_id>', methods=['PUT'])
+@log_function
+def edit_book(book_id):
+    try:
+        data = request.get_json()
+        updated_data = {}
+
+        # Only update fields that are provided
+        for field in ["title", "publication_year", "author_name", "image_url"]:
+            if field in data:
+                updated_data[field] = data[field]
+
+        if not updated_data:
+            return jsonify({'error': 'No data provided for update'}), 400
+
+        result = books_collection.update_one(
+            {"_id": ObjectId(book_id)},
+            {"$set": updated_data}
+        )
+
+        if result.matched_count == 0:
+            return jsonify({'error': 'Book not found'}), 404
+
+        return jsonify({'message': 'Book updated successfully'})
+
+    except Exception as e:
+        log_error("edit_book", e)
+        return jsonify({'error': str(e)})
+
 
 # =============================
 # LOG ROUTES
